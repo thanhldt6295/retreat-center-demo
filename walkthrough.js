@@ -9,13 +9,14 @@ function guidedObserve(){const g=guided();if(!g||g.finished)return;const guestVi
  if(state.ui.app==='admin'&&state.ui.admin==='individual-detail')g.recordSeen=true;
  if(state.ui.app==='admin'&&state.ui.admin==='availability')g.availabilitySeen=true;
  if(guestView&&state.ui.portalRole==='guest'&&state.ui.portalPage==='charges')g.chargesSeen=true;
- if(guestView&&state.ui.portalRole==='guest'&&['stay','charges','schedule'].includes(state.ui.portalPage)&&g.requestId&&ops().requests.find(q=>q.id===g.requestId)?.status!=='New')g.responseSeen=true;
+ if(guestView&&state.ui.portalRole==='guest'&&['stay','charges','schedule'].includes(state.ui.portalPage)&&g.requestId&&guidedRequests(g).every(q=>['Confirmed','Declined'].includes(q.status)))g.responseSeen=true;
  if(g.video===3&&!g.requestId){const q=ops().requests.find(q=>!g.initialRequests.includes(q.id));if(q)g.requestId=q.id;}
 }
+function guidedRequests(g){const q=ops().requests.find(q=>q.id===g.requestId);return q?(q.batchId?ops().requests.filter(x=>x.batchId===q.batchId):[q]):[];}
 function guidedReady(index=recordingStep()){const g=guided();if(!g)return false;const v=g.video,r=v2Active()?individualById(g.guestId):null;
  if(v===1)return !![!!state.request,['Confirmed','Converted'].includes(state.request?.status),['Sent','Executed'].includes(state.quote?.status),!!(state.quote?.signature&&state.quote?.paid),state.reservation?.status==='Confirmed'][index];
  if(v===2)return !![g.organizerOpened,!!(g.invitationSent||pickup().sharedEmail),g.guestOpened,pickup().reservations.some(r=>r.paid&&!g.initialPaid.includes(r.id)),!!(g.roomChanged||g.availabilitySeen)][index];
- if(v===3){const q=g.requestId&&ops().requests.find(q=>q.id===g.requestId);return !![g.organizerOpened,['invoices','documents','schedule'].every(p=>g.organizerPages[p]),g.guestOpened,!!q,!!q&&['Confirmed','Declined'].includes(q.status),g.responseSeen][index];}
+ if(v===3){const requests=guidedRequests(g);return !![g.organizerOpened,['invoices','documents','schedule'].every(p=>g.organizerPages[p]),g.guestOpened,!!requests.length,!!requests.length&&requests.every(q=>['Confirmed','Declined'].includes(q.status)),g.responseSeen][index];}
  return !![!!(r?.checkedIn&&r?.waiver),ordersFor(r).some(o=>!g.initialOrders.includes(o.id)&&o.payment==='Room'),g.recordSeen,g.chargesSeen,!!r?.checkedOut][index];
 }
 function guidedStart(video){requireState(!modal,'Close the current dialog first.');localStorage.setItem(STORE+'-before-guided-start',JSON.stringify(state));state=initial();modal=null;wizard=null;resWizard=null;availability=null;state.ui.demoSelectedVideo=video;state.ui.recording=false;
