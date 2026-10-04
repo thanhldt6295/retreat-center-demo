@@ -5,7 +5,7 @@ const guidedResults={1:['A new group request appears in Admin App.','The request
 function guided(){return state.ui.walkthrough;}
 function guidedSelected(){return state.ui.demoSelectedVideo||guided()?.video||recordingVideo();}
 function guidedObserve(){const g=guided();if(!g||g.finished)return;const guestView=state.ui.app==='guest'&&state.ui.guest!=='mailbox';if(guestView&&state.ui.portalRole==='organizer'&&['organizer','organizer-portal'].includes(state.ui.guest))g.organizerOpened=true;if(guestView&&state.ui.portalRole==='guest'&&['guest-portal','group-code','choose-room','individual-payment','individual-confirmed'].includes(state.ui.guest))g.guestOpened=true;
- if(guestView&&state.ui.portalRole==='organizer')g.organizerPages[state.ui.portalPage||'overview']=true;
+ if(guestView&&state.ui.portalRole==='organizer'){const p=state.ui.portalPage||'overview';g.organizerPages[p==='billing'?'invoices':p]=true;}
  if(state.ui.app==='admin'&&state.ui.admin==='individual-detail')g.recordSeen=true;
  if(state.ui.app==='admin'&&state.ui.admin==='availability')g.availabilitySeen=true;
  if(guestView&&state.ui.portalRole==='guest'&&state.ui.portalPage==='charges')g.chargesSeen=true;
