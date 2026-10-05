@@ -1,7 +1,7 @@
 /* Figma Availability hover details, kept outside the scrolling grid. */
 (()=>{
-let timer,anchor,card;
-const hide=()=>{clearTimeout(timer);card?.remove();card=null;anchor=null;};
+let timer,anchor,card,anchorTitle;
+const hide=()=>{clearTimeout(timer);card?.remove();if(anchorTitle&&anchor?.isConnected)anchor.setAttribute('title',anchorTitle);anchorTitle=null;card=null;anchor=null;};
 const line=(k,v)=>`<div class="hover-detail"><span>${esc(k)}</span><b>${esc(v)}</b></div>`;
 function content(el){
  const row=el.closest('.calendar-row'),grid=document.querySelector('.availability-grid');
@@ -24,7 +24,7 @@ function content(el){
  const info=el.dataset.action?.startsWith('cx-remove-item-')?['Remove item','Remove this item from the order']:descriptions[el.dataset.action];const label=info?.[0]||el.getAttribute('aria-label')||el.getAttribute('title')||(el.textContent.trim()==='×'?'Close':null);if(!label)return null;
  return {html:`<b>${esc(label)}</b>${info?.[1]?'<span>'+esc(info[1])+'</span>':''}`};
 }
-function show(el){hide();const data=content(el);if(!data)return;anchor=el;card=document.createElement('div');card.className=data.rich?'design-hover design-popover':'design-hover design-tooltip';card.id='prototype-hover';card.setAttribute('role',data.rich?'dialog':'tooltip');card.innerHTML=data.html;document.body.append(card);const box=el.getBoundingClientRect(),rect=card.getBoundingClientRect();card.style.left=Math.max(8,Math.min(box.left,innerWidth-rect.width-8))+'px';card.style.top=(box.bottom+8+rect.height>innerHeight?Math.max(8,box.top-rect.height-8):box.bottom+8)+'px';}
+function show(el){hide();const data=content(el);if(!data)return;anchor=el;if(el.hasAttribute?.('title')){anchorTitle=el.getAttribute('title');el.removeAttribute('title');}card=document.createElement('div');card.className=data.rich?'design-hover design-popover':'design-hover design-tooltip';card.id='prototype-hover';card.setAttribute('role',data.rich?'dialog':'tooltip');card.innerHTML=data.html;document.body.append(card);const box=el.getBoundingClientRect(),rect=card.getBoundingClientRect();card.style.left=Math.max(8,Math.min(box.left,innerWidth-rect.width-8))+'px';card.style.top=(box.bottom+8+rect.height>innerHeight?Math.max(8,box.top-rect.height-8):box.bottom+8)+'px';}
 const selector='.calendar-booking,.calendar-cell,.calendar-day,button';
 document.addEventListener('mouseover',e=>{const el=e.target.closest(selector);if(el&&el!==anchor){clearTimeout(timer);timer=setTimeout(()=>show(el),250);}else if(e.target.closest('.design-hover'))clearTimeout(timer);});
 document.addEventListener('mouseout',e=>{if(e.relatedTarget?.closest?.('.design-hover')||e.relatedTarget===anchor||anchor?.contains(e.relatedTarget))return;if(e.target.closest(selector)||e.target.closest('.design-hover')){clearTimeout(timer);timer=setTimeout(hide,200);}});
