@@ -26,10 +26,10 @@ function content(el){
 }
 function show(el){hide();const data=content(el);if(!data)return;anchor=el;if(el.hasAttribute?.('title')){anchorTitle=el.getAttribute('title');el.removeAttribute('title');}card=document.createElement('div');card.className=data.rich?'design-hover design-popover':'design-hover design-tooltip';card.id='prototype-hover';card.setAttribute('role',data.rich?'dialog':'tooltip');card.innerHTML=data.html;document.body.append(card);const box=el.getBoundingClientRect(),rect=card.getBoundingClientRect();card.style.left=Math.max(8,Math.min(box.left,innerWidth-rect.width-8))+'px';card.style.top=(box.bottom+8+rect.height>innerHeight?Math.max(8,box.top-rect.height-8):box.bottom+8)+'px';}
 const selector='.calendar-booking,.calendar-cell,.calendar-day,button';
-document.addEventListener('mouseover',e=>{const el=e.target.closest(selector);if(el&&el!==anchor){clearTimeout(timer);timer=setTimeout(()=>show(el),250);}else if(e.target.closest('.design-hover'))clearTimeout(timer);});
+document.addEventListener('mouseover',e=>{if(e.target.closest('.design-hover')){clearTimeout(timer);return;}const el=e.target.closest(selector);if(el&&el!==anchor){clearTimeout(timer);timer=setTimeout(()=>show(el),250);}else if(e.target.closest('.design-hover'))clearTimeout(timer);});
 document.addEventListener('mouseout',e=>{if(e.relatedTarget?.closest?.('.design-hover')||e.relatedTarget===anchor||anchor?.contains(e.relatedTarget))return;if(e.target.closest(selector)||e.target.closest('.design-hover')){clearTimeout(timer);timer=setTimeout(hide,200);}});
-document.addEventListener('focusin',e=>{if(e.target.matches(selector))show(e.target);});
-document.addEventListener('focusout',e=>{if(!e.relatedTarget?.closest?.('.design-hover'))hide();});
+document.addEventListener('focusin',e=>{if(e.target.closest('.design-hover')){clearTimeout(timer);return;}if(e.target.matches(selector))show(e.target);});
+document.addEventListener('focusout',e=>{if(!e.relatedTarget?.closest?.('.design-hover')){clearTimeout(timer);timer=setTimeout(hide,200);}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});document.addEventListener('scroll',hide,true);window.addEventListener('resize',hide);
 document.addEventListener('click',e=>{const a=e.target.closest('[data-action]')?.dataset.action;if(a?.startsWith('hover-change-')){pickup().currentId=a.slice(13);handle('v2-change-room');}hide();});
 })();
