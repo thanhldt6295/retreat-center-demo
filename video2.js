@@ -116,6 +116,7 @@ handle=function(a,el){if(!a.startsWith('v2-')){if(v2Active()&&a==='my-booking'){
  else if(a==='v2-checkout'){requireState(openSlots(pickup().selectedType).length||pickup().invitedSlot,'No rooms left. Choose another room.');navigate('guest','individual-payment');}
  else if(a==='v2-pay'){const f=$('#individual-payment-form');if(!f.reportValidity())return;payIndividual(Object.fromEntries(new FormData(f)));toast('Your room is booked. Demo payment received.');}
  else if(a.startsWith('v2-invitation-')){const r=individualById(a.slice(14));requireState(r&&!r.paid,'This invitation is no longer pending.');pickup().invitedSlot=r.slotId;pickup().selectedType=r.type;pickup().guestDraft={...r.guest};navigate('guest','individual-payment');}
+ else if(a==='v2-record-00031'){navigate('admin','reservation');}
  else if(a.startsWith('v2-record-')){pickup().currentId=a.slice(10);pickup().detailTab='Details';navigate('admin','individual-detail');}
  else if(a.startsWith('v2-tab-')){pickup().detailTab=a.slice(7);save();render();}
  else if(a==='v2-change-room'){modal=null;openModal(a);}
