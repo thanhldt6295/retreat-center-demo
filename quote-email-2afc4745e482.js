@@ -1,0 +1,12 @@
+/* Organizer's first quote email, Figma 192:7775. */
+function firstQuoteEmail(){
+ const q=state.quote,r=state.request,t=totals(q),shortMoney=v=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2,minimumFractionDigits:0}).format(Number(v)||0);
+ const rows=quoteRows(q).map(row=>row.map((x,i)=>i>2?shortMoney(Number(String(x).replace(/[^0-9.-]/g,''))):x));
+ return '<div class="quote-mail-design"><div class="quote-mail-subject"><b>Group Rate Quote · your private link inside</b><span>· from Cedar Valley Retreat & Conference Center · Sep 12, 2026</span></div><article class="quote-mail-card"><header><div><small>GROUP BOOKING QUOTE</small><h2>'+esc(r.group)+'</h2></div><div><small>UNIQUE ID</small><strong>GBR-008</strong></div></header><div class="quote-mail-meta"><div><small>TO</small><b>'+esc(name())+'</b><span>'+esc(r.email)+'</span></div><div><small>FROM</small><b>Cedar Valley Retreat & Conference Center</b><span>retreats@cedarvalley.example</span></div></div><div class="quote-mail-lines">'+table(['Description','Qty','Nights','Price','Total'],rows,'quote-mail-table')+'</div><div class="quote-mail-totals">'+line('Amount total',money(t.beforeDiscount||t.subtotal))+(t.discount?line('Discount','−'+money(t.discount)):'')+line('Tax ('+(q.tax?'10':'0')+'%)',money(t.tax))+(t.storedValueAmount?line('Stored Value','−'+money(t.storedValueAmount)):'')+line('Grand Total',money(t.total),'total')+'</div><div class="quote-mail-action"><button class="mail-secure-link" data-action="mail-link-quote">Open your event portal</button><p>50% deposit ('+money(t.deposit)+') is due when you sign. This link is private to you, so there is no login. The quote is valid until Oct 15, 2026.</p></div><div class="quote-mail-secure"><span>Secure link</span><button data-action="mail-link-quote">cedarvalley.example/portal/o/HZN-7Q4M-2K9X</button></div></article></div>';
+}
+const firstQuoteMessages=mailboxMessages;
+mailboxMessages=function(){return firstQuoteMessages().map(m=>m.id==='quote'?{...m,subject:'Group Rate Quote · your private link inside',cta:'Open your event portal'}:m);};
+const firstQuoteMailbox=mailboxPage;
+mailboxPage=function(){let html=firstQuoteMailbox();if(mailboxPerson().role==='Organizer'&&state.ui.mailMessage==='quote'&&state.quote)html=html.replace(/<div class="gmail-email-card">[\s\S]*?<\/div><\/article>/,firstQuoteEmail()+'</article>').replace('bookings@cedarvalley.example','retreats@cedarvalley.example').replace('<small>Sep 22, 2026</small>','<small>Sep 12, 2026</small>');return html;};
+render();
+
